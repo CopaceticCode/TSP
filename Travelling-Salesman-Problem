@@ -1,0 +1,54 @@
+import csv
+import sys
+
+# Read the distance matrix from the CSV file
+distances = {}
+with open('distance matrix.csv', 'r') as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip the header row
+    for row in reader:
+        point1, point2, distance = row
+        distance = int(distance)
+        distances[(point1, point2)] = distance
+        distances[(point2, point1)] = distance
+
+        # Assign a distance of 0 for the same point
+        distances[(point1, point1)] = 0
+        distances[(point2, point2)] = 0
+
+# Function to find the nearest unvisited neighbor
+def find_nearest_neighbor(current_point, unvisited):
+    nearest = None
+    min_distance = sys.maxsize
+    for point in unvisited:
+        distance = distances[(current_point, point)]
+        if distance < min_distance:
+            nearest = point
+            min_distance = distance
+    return nearest, min_distance
+
+# Nearest neighbor algorithm
+def solve_tsp():
+    unvisited = set([str(i) for i in range(1, 31)])
+    current_point = '1'
+    tour = [current_point]
+    total_distance = 0
+
+    # while unvisited:
+    while len(unvisited) > 0:
+        nearest, distance = find_nearest_neighbor(current_point, unvisited)
+        unvisited.remove(nearest)
+        tour.append(nearest)
+        total_distance += distance
+        current_point = nearest
+
+    # # Add the distance from the last point back to the starting point
+    # total_distance += distances[(tour[-1], tour[0])]
+
+    return tour, total_distance
+
+# Solve the TSP
+tour, total_distance = solve_tsp()
+# print(f"Tour: {' -> '.join(tour)} -> {tour[0]}")
+print(f"Tour: {' -> '.join(tour)}")
+print(f"Total distance: {total_distance}")
